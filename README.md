@@ -24,7 +24,7 @@ Das Skript ist für kleine Widgets ausgelegt und wurde auf einem iPhone Xs getes
 * Zeigt neben der 7-Tage-Inzidenz auch Einwohnerzahl, Anzahl der bisherigen Fälle und der Verstorbenen
 * Wechselt gemäß der Geräteeinstellung automatisch in den Darkmode
 * Immer Darkmode verwenden: const allwaysDark = true 
-* Ampel: <35 Grün, >35 Orange, >50 Rot, >100 Lila 
+* Warnstufen: <35 Grün, >35 Orange, >50 Rot, >100 Lila 
 
 
 ## Bekannte Probleme
