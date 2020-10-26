@@ -15,17 +15,10 @@
 // Die benötigte OBJECTID ist der erste Eintrag der Tabelle. 
 //
 // Autor Script: Stefan Völkel, Okt. 2020 
-// Änderung: 23.10.2020
-// - Anstatt des "Klarnamens" der Region wird jetzt die OBJECTID als Parameter verwendet.
-// - So kommt es zu einer eindeutigen Zuordnung z.B. bei Kreisfreien Städten und Landkreisen mit gleichen Namen.
-// Änderung: 24.10.2020
-// - Script aufgeräumt und Widget-Layout angepasst
-// Änderung: 25.10.2020
-// - Die Ampel ist jetzt vierfarbig. Da einige Regionen Regeln ab einer Inzidenz von 100 verschärfen, kommt jetzt noch Lila in's Spiel.
 //
 // Free to use and share!
 // Ändere, ergänze, korrigiere und teile das Skript wie du magst!
-// Download der aktuellen Version hier: https://fckaf.de/JHj
+// Download der aktuellen Version hier: https://fckaf.de/JHj oder auf GitHub https://github.com/MacSchierer/Covid-19_Ampel
 
 
 // Optionale Konfiguration
@@ -43,10 +36,8 @@ if (param != null && param.length > 0) {
 }
 
 // 
-// Geräteinfos holen, getestet bei iPhone XS
-// Keine Ahnung wie es auf anderen Geräten ausschaut ;-)
+// Geräteinfos für Widgetgröße - getestet bei iPhone XS
 // 
-
 let deviceScreen = Device.screenSize()
 let padding = ((deviceScreen.width - 240) /5) // Default immer kleines Widget
 let widgetSize = new Size(padding + 110, padding + 110)
