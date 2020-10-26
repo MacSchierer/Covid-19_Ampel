@@ -20,7 +20,9 @@ Das Skript ist für kleine Widgets ausgelegt und wurde auf einem iPhone Xs getes
 
 ## Features
 
-* Wechseln gemäß der Geräteeinstellung in den Darkmode
+* Quelle der Daten: https://npgeo-corona-npgeo-de.hub.arcgis.com
+* Zeigt neben der 7-Tage-Inzidenz auch Einwohnerzahl, Anzahl der bisherigen Fälle und der Verstorbenen
+* Wechseln gemäß der Geräteeinstellung automatisch in den Darkmode
 * Immer Darkmode verwenden: const allwaysDark = true 
 * Ampel: <35 Grün, >35 Orange, >50 Rot, >100 Lila 
 
