@@ -8,7 +8,7 @@ Ein Scriptable Widget zum Anzeigen der 7-Tage-Inzidenz und zusätzlichen Infos z
 
 * Download Scriptable App für iOS Geräte - https://scriptable.app
 * Download/Import der Covid-19_Ampel.js Datei nach iCloud/Scriptable
-* Auf dem Homescreen ein neues kleines Scriptable widget erstellen
+* Auf dem Homescreen ein neues kleines Scriptable Widget erstellen
 * Als Widget Parameter wird die OBJECTID der Region eingegeben
 
 Die Region wird gemäß JSON-Eintrag -> RKI NPGEO Corona -> Corona Landkreise -> Key = OBJECTID als Parameter des Widget verwendet.
