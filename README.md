@@ -1,5 +1,5 @@
 # Covid-19_Ampel, Ein Scriptable Widget
-Ein Scriptable Widget zum Anzeigen der 7-Tage-Inzidenz und zusätzlichen Infos zu einen ausgwählten Region Deutschlands
+Ein Scriptable Widget zum Anzeigen der 7-Tage-Inzidenz und zusätzlichen Infos zu einen ausgwählten Region Deutschlands.
 
 <img src="pic-1.jpg" width="400" /> &nbsp; <img src="pic-2.jpg" width="400" />
 <img src="pic-3.jpg" width="400" /> &nbsp; <img src="pic-4.jpg" width="400" />
