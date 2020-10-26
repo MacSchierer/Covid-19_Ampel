@@ -32,5 +32,5 @@ Das Skript ist für kleine Widgets ausgelegt und wurde auf einem iPhone Xs getes
 
 ## Changelog
 
-v0.1 Release GitHub
+v1.0 Release GitHub
 
