@@ -1,42 +1,38 @@
-# TeslaFi-Widget
-A Scriptable widget to pull data from the TeslaFi API
+# Covid-19_Ampel iOs Widget
+Ein Scriptable Widget zum Anzeigen der 7-Tage-Inzidenz und zusätzlichen Infos zu einen ausgwählten Region Deutschlands
 
-<img src="TeslaFi_Screen.v8.png" width="400" /> &nbsp; <img src="TeslaFi_Screen-B.v8.png" width="400" />
+<img src="pic-1.jpg" width="400" /> &nbsp; <img src="pic-2.jpg" width="400" />
+<img src="pic-3.jpg" width="400" /> &nbsp; <img src="pic-4.jpg" width="400" />
 
-## Usage
-You obviously need a TeslaFi account (and a Tesla). Get your [API Key](https://teslafi.com/api.php).
+## Verwendung
 
-* Download Scriptable to your iOS device
-* Download the TeslaFi Widget.js file to your iCloud/Scriptable folder
-* Create a small scriptable widget
-* Under widget options, select "TeslaFi Widget" and enter the API key into the widget parameters
+* Download Scriptable App für iOS Geräte - https://scriptable.app
+* Download/Import der Covid-19_Ampel.js Dati nach iCloud/Scriptable
+* Auf dem Homescreen ein neues kleines Scriptable widget erstellen
+* Als Widget Parameter wird die OBJECTID der Region eingegeben
 
-There are a few options if you want to turn on/off battery percentage and estimated range (and if you'd like to use the car's range, or the TeslaFi estimate). These options are the constants at the top of the file (set the variables as true/false)
+Die Region wird gemäß JSON-Eintrag -> RKI NPGEO Corona -> Corona Landkreise -> Key = OBJECTID
+als Parameter des Widget verwendet. Hier findest du die Landkarte mit den Regionen:
+https://npgeo-corona-npgeo-de.hub.arcgis.com/datasets/917fc37a709542548cc3be077a786c17_0
+Mit einem Klick in die Karte öffnet sich eine Tabelle mit den zugehörigen Infos.
+Die benötigte OBJECTID ist der erste Eintrag der Tabelle. 
 
-There's also an option for a 3D styled battery bar.
+Das Skript ist für kleine Widgets ausgelegt und wurde auf einem iPhone Xs getestet. Auf anderen Geräten kann es ggf. zu Abweichungen in der Darstellung kommen.
 
-Note, due to the lag with TeslaFi pulling data from your car, and the lag of iOS pulling the data, the resulting display could be ~5 minutes stale (and the data could be hours or even a day old because TeslaFi lets the car sleep, so its not sending data)
-
-Also note that this really only works as a small widget size, and only tested on an iPhone X (it may work fine for other phones, but not sure about iPad)
 
 ## Features
 
-This should support:
-* charging overview (current charge, charge limit, and time until charge complete)
-* conditioning on indicator
-* doors locked/unlocked
-* interior temperature
-* sentry mode on
-* sleeping, idle, driving indicator
-* time since TeslaFi retreived data from the car (respects sleep)
+* Wechseln gemäß der Geräteeinstellung in den Darkmode
+* Immer Darkmode verwenden: const allwaysDark = true 
+* Ampel: <35 Grün, >35 Orange, >50 Rot, >100 Lila 
 
-## Outstanding Bugs
 
-There appears to be an issue with SF graphics in Scriptable where the images are stretched. 
+## Bekannte Probleme
+
+* Beim Umschalten des Darkmode kann es zu Verzögerunen kommen.
+* Darstellungsfehler bei anderen Geräten z. B. iPad
 
 ## Changelog
 
-v0.6 initial release added to GitHub  
-v0.7 added custom bolt icon for charging so I could add a stroke, changed charging color. Adjusted 3D styling, added time since last communication with the car.  
-v0.8 added color coded snowflake to show if we're heating or cooling. Added target temperature to display when preheating/cooling. Added charging icon to show when the charger is connected (but not currently charging). Added metric range display (untested). Added internal temperature showing faded when the data is more than 2 hours old (since the internal temp is probably invalid). Added usable vs. total charge (for colder weather).
+v0.1 Release GitHub
 
