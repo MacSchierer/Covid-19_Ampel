@@ -1,4 +1,4 @@
-# Covid-19_Ampel iOs Widget
+# Covid-19_Ampel, Ein Scriptable Widget
 Ein Scriptable Widget zum Anzeigen der 7-Tage-Inzidenz und zusätzlichen Infos zu einen ausgwählten Region Deutschlands
 
 <img src="pic-1.jpg" width="400" /> &nbsp; <img src="pic-2.jpg" width="400" />
