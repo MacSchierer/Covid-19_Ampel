@@ -1,25 +1,27 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: red; icon-glyph: star-of-life;
+//
 // Script für https://scriptable.app
 //
 // Corona Ampel Widget. Zeigt neben der 7-Tage-Inzidenz weitere Infos zu einer Region. 
 // Konfiguriert als kleines Widget. Schaltet automatisch auch in den DarkMode
 //
-// Quelle der Daten: https://npgeo-corona-npgeo-de.hub.arcgis.com
-//
+// Die Daten sind die „Fallzahlen in Deutschland“ des Robert Koch-Institut (RKI) stehen unter 
+// der Open Data Datenlizenz Deutschland – Namensnennung – Version 2.0 zur Verfügung. 
+// Robert Koch-Institut (RKI), dl-de/by-2-0, https://www.govdata.de/dl-de/by-2-0
+// https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Fallzahlen.html
+// 
 // Die Region wird gemäß JSON-Eintrag -> RKI NPGEO Corona -> Corona Landkreise -> Key = OBJECTID
 // als Parameter des Widget verwendet. Hier findest du die Landkarte mit den Regionen:
 // https://npgeo-corona-npgeo-de.hub.arcgis.com/datasets/917fc37a709542548cc3be077a786c17_0
 // Mit einem Klick in die Karte öffnet sich eine Tabelle mit den zugehörigen Infos.
 // Die benötigte OBJECTID ist der erste Eintrag der Tabelle. 
+// 
+// Wird keine Region vorausgewählt, wird die Region per GPS ermittelt.
 //
-// Autor Script: Stefan Völkel, Okt. 2020 
-//
-// Free to use and share!
-// Ändere, ergänze, korrigiere und teile das Skript wie du magst!
+// Script by MacSchierer, 30.10.2020, v1.1 
 // Download der aktuellen Version hier: https://fckaf.de/JHj oder auf GitHub https://github.com/MacSchierer/Covid-19_Ampel
-
 
 // Optionale Konfiguration
 const debugMode = false    // Debug für Rahmen bei den einzelnen Stacks
@@ -29,47 +31,69 @@ const Step1st = 35
 const Step2nd = 50
 const Step3rd = 100
 
-let ObjectID = 413                  // 413 = Berlin Mitte, Standardeinstellung für Widget. Wird verwendet, wenn kein eigenen Parameter gesetzt ist.
+// Ab hier nichts ändern
+let APIurl = ""
+let ObjectID = "" 
+let useGPS = false   
+let hasError = false
+let ErrorTxt = ""               
 let param = args.widgetParameter	// Abfrage des Parameters vom Widget
 if (param != null && param.length > 0) {
 	ObjectID = param
+	if (isNaN(ObjectID)) {
+		hasError = true
+		ErrorTxt += "Die OBJEKTID muss eine Zahl sein.\r\rBitte überprüfe den Parameter im Widget."    
+	} else {
+		APIurl = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=OBJECTID=" + ObjectID + "&outFields=OBJECTID,GEN,BEZ,EWZ,last_update,cases,deaths,cases7_per_100k&returnGeometry=false&outSR=4326&f=json"	
+	}
+}
+else {
+// Keine Region vorgewählt -> GPS benutzen
+	Location.setAccuracyToThreeKilometers()
+	location = await Location.current()
+	let GPSlon = location.longitude.toFixed(3)
+	let GPSlat = location.latitude.toFixed(3)
+    APIurl = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=OBJECTID,GEN,BEZ,EWZ,last_update,cases,deaths,cases7_per_100k&geometry=" + GPSlon + "%2C" + GPSlat + "&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelWithin&returnGeometry=false&outSR=4326&f=json"
+	useGPS = true    
 }
 
-// 
+//
 // Geräteinfos für Widgetgröße - getestet bei iPhone XS
 // 
 let deviceScreen = Device.screenSize()
 let padding = ((deviceScreen.width - 240) /5) // Default immer kleines Widget
 let widgetSize = new Size(padding + 110, padding + 110)
 
-if (isNaN(ObjectID)) {
-	let widget = errorWidget("Die OBJEKTID muss eine Zahl sein.\r\rBitte überprüfe den Parameter im Widget.")
+// Daten als JSON bei https://npgeo-corona-npgeo-de.hub.arcgis.com abfragen
+let allItems = ""
+if (hasError == false) {
+	allItems = await loadItems()	
+	if(!allItems || !allItems.features || !allItems.features.length) {
+		logError(allItems)
+		hasError = true
+		ErrorTxt += "Es konnten keine Daten zur Region gefunden werden.\r\rBitte überprüfe den Parameter im Widget."   
+	}
+}
+	
+
+// Ausgabe aufgelaufene Fehler oder Widget
+if (hasError == true) {
+	let widget = errorWidget(ErrorTxt)
+	Script.setWidget(widget)
+	widget.presentSmall()
+	Script.complete()	
+} else { 
+	if (config.runsInWidget || true) {
+		let widget = createWidget(allItems,widgetSize)
 		Script.setWidget(widget)
 		widget.presentSmall()
 		Script.complete()
-} else {
-	
-	// Daten als JSON bei https://npgeo-corona-npgeo-de.hub.arcgis.com abfragen
-	let allItems = await loadItems(ObjectID)	
+	}
+	else {
+		Script.complete()	
+	}
+}	
 
-	if (allItems.features[0] == null) {
-		logError(allItems)
-		let widget = errorWidget("Es konnten keine Daten zur Region gefunden werden.\r\rBitte überprüfe den Parameter im Widget.")
-			Script.setWidget(widget)
-			widget.presentSmall()
-			Script.complete()
-	} else { 
-		if (config.runsInWidget || true) {
-			let widget = createWidget(allItems,widgetSize)
-			Script.setWidget(widget)
-			widget.presentSmall()
-			Script.complete()
-		}
-		else {
-			Script.complete()	
-		}
-	}	
-}
  
 function createWidget(allItems, widgetSize) {
 	//
@@ -178,12 +202,20 @@ function createWidget(allItems, widgetSize) {
 	let wSubTitle = w.addStack()
 	wSubTitle.size = new Size(widgetSize.width,widgetSize.height*0.10)
 	wSubTitle.bottomAlignContent()
-	wSubTitle.setPadding(0,4,0,0)	
+	wSubTitle.setPadding(0,4,0,4)	
 		let SubTitleOut = wSubTitle.addText(SubTitleTxt)
 		SubTitleOut.textColor = SubTitelColor
 		SubTitleOut.font = Font.boldSystemFont(10)
 		SubTitleOut.minimumScaleFactor = 0.5	
 	wSubTitle.addSpacer()  
+	if (useGPS == true) {
+		addSymbol({
+			  symbol: 'mappin.and.ellipse',
+			  stack: wSubTitle,
+			  color: SubTitelColor,
+			  size: 12,
+			})	
+	}	
 	// Title Stack
 	let wTitle = w.addStack()
 	wTitle.size = new Size(widgetSize.width,widgetSize.height*0.15)
@@ -193,13 +225,6 @@ function createWidget(allItems, widgetSize) {
 		TitleOut.textColor = TitelColor
 		TitleOut.font = Font.boldSystemFont(20)
 		TitleOut.minimumScaleFactor = 0.3
-		//wTitle.addSpacer()	
-		//addSymbol({
-		//	  symbol: 'building.2',
-		//	  stack: wTitle,
-		//	  color: TitelColor,
-		//	  size: 20,
-		//	})	
 	wTitle.addSpacer()	
 
 	// Content Stack
@@ -258,7 +283,7 @@ function createWidget(allItems, widgetSize) {
 	wFooter.addSpacer()
 	wFooter.setPadding(0,0,0,4)	
 		wFooter.bottomAlignContent()  
-		let FooterOut = wFooter.addText(" Stand: " + FooterTxt)
+		let FooterOut = wFooter.addText("Quelle RKI: " + FooterTxt)
 		FooterOut.textColor = FooterColor
 		FooterOut.font = Font.systemFont(8)
 		FooterOut.minimumScaleFactor = 0.5  
@@ -310,8 +335,7 @@ function errorWidget(reason){
 // JSON holen
 //
 async function loadItems() {
-	let url ="https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=OBJECTID=" + ObjectID + "&outFields=*&outSR=4326&f=json"
-	let req = new Request(url)
+	let req = new Request(APIurl)
 	let json = await req.loadJSON()
 	return json
 }
