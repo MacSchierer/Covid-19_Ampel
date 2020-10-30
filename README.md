@@ -10,7 +10,7 @@ Ein Scriptable Widget zum Anzeigen der 7-Tage-Inzidenz und zusätzlichen Infos z
 * Download/Import der Covid-19_Ampel.js Datei nach iCloud/Scriptable
 * Auf dem Homescreen ein neues kleines Scriptable Widget erstellen
 * Als Widget-Parameter kann die OBJECTID der Region verwendet
-* Wird kein Widget-Parameter verwendet, wird die Regioin per GPS ermittelt
+* Wird kein Widget-Parameter verwendet, wird die Region per GPS ermittelt
 
 Die Region kann gemäß JSON-Eintrag -> RKI NPGEO Corona -> Corona Landkreise -> Key = OBJECTID als Parameter des Widget ausgewählt werden.
 Hier findest du die Landkarte mit den Regionen: https://npgeo-corona-npgeo-de.hub.arcgis.com/datasets/917fc37a709542548cc3be077a786c17_0
@@ -28,7 +28,7 @@ Auf anderen Geräten kann es ggf. zu Abweichungen in der Darstellung kommen.
 * Immer Darkmode verwenden: const allwaysDark = true 
 * Warnstufen: <35 Grün, >35 Orange, >50 Rot, >100 Lila 
 * Freie Wahl der Region durch Eingabe des Parameters im Widget
-* Wird kein Widget-Parameter verwendet, wird die Regioin per GPS ermittelt
+* Wird kein Widget-Parameter verwendet, wird die Region per GPS ermittelt
 
 
 ## Bekannte Probleme
