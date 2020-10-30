@@ -2,7 +2,7 @@
 Ein Scriptable Widget zum Anzeigen der 7-Tage-Inzidenz und zusätzlichen Infos zu einen ausgwählten Region Deutschlands.
 
 <img src="pic-1.jpg" width="400" /> &nbsp; <img src="pic-2.jpg" width="400" /><br/><br/>
-Auswahl der Region über den Parameter des Widgets. Alernativ per GPS ohne Parametereingabe.<br/>
+Auswahl der Region über den Parameter des Widgets. Alternativ per GPS ohne Parametereingabe.<br/>
 <img src="pic-3.jpg" width="400" /> &nbsp; <img src="pic-4.jpg" width="400" />
 
 ## Verwendung
