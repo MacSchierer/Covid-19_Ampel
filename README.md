@@ -27,7 +27,7 @@ Auf anderen Geräten kann es ggf. zu Abweichungen in der Darstellung kommen.
 * Wechselt gemäß der Geräteeinstellung automatisch in den Darkmode
 * Immer Darkmode verwenden: const allwaysDark = true 
 * Warnstufen: <35 Grün, >35 Orange, >50 Rot, >100 Lila 
-* Freie Wahl der Region durch eingabe des Parameters im Widget
+* Freie Wahl der Region durch Eingabe des Parameters im Widget
 * Wird kein Widget-Parameter verwendet, wird die Regioin per GPS ermittelt
 
 
