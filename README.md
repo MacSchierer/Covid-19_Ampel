@@ -9,13 +9,15 @@ Ein Scriptable Widget zum Anzeigen der 7-Tage-Inzidenz und zusätzlichen Infos z
 * Download Scriptable App für iOS Geräte - https://scriptable.app
 * Download/Import der Covid-19_Ampel.js Datei nach iCloud/Scriptable
 * Auf dem Homescreen ein neues kleines Scriptable Widget erstellen
-* Als Widget-Parameter wird die OBJECTID der Region verwendet
+* Als Widget-Parameter kann die OBJECTID der Region verwendet
+* Wird kein Widget-Parameter verwendet, wird die Regioin per GPS ermittelt
 
-Die Region wird gemäß JSON-Eintrag -> RKI NPGEO Corona -> Corona Landkreise -> Key = OBJECTID als Parameter des Widget ausgewählt.
+Die Region kann gemäß JSON-Eintrag -> RKI NPGEO Corona -> Corona Landkreise -> Key = OBJECTID als Parameter des Widget ausgewählt werden.
 Hier findest du die Landkarte mit den Regionen: https://npgeo-corona-npgeo-de.hub.arcgis.com/datasets/917fc37a709542548cc3be077a786c17_0
 Mit einem Klick in die Karte öffnet sich eine Tabelle mit den zugehörigen Infos. Die benötigte OBJECTID ist der erste Eintrag der Tabelle. 
 
-Das Skript ist für kleine Widgets ausgelegt und wurde auf einem iPhone Xs getestet. Auf anderen Geräten kann es ggf. zu Abweichungen in der Darstellung kommen.
+Das Skript ist für kleine Widgets ausgelegt und wurde auf einem iPhone Xs und SE getestet.
+Auf anderen Geräten kann es ggf. zu Abweichungen in der Darstellung kommen.
 
 
 ## Features
@@ -25,6 +27,8 @@ Das Skript ist für kleine Widgets ausgelegt und wurde auf einem iPhone Xs getes
 * Wechselt gemäß der Geräteeinstellung automatisch in den Darkmode
 * Immer Darkmode verwenden: const allwaysDark = true 
 * Warnstufen: <35 Grün, >35 Orange, >50 Rot, >100 Lila 
+* Freie Wahl der Region durch eingabe des Parameters im Widget
+* Wird kein Widget-Parameter verwendet, wird die Regioin per GPS ermittelt
 
 
 ## Bekannte Probleme
@@ -33,6 +37,10 @@ Das Skript ist für kleine Widgets ausgelegt und wurde auf einem iPhone Xs getes
 * Darstellungsfehler bei anderen Geräten z. B. iPad
 
 ## Changelog
-
+v1.1 GPS Funktionalität ergänzt
 v1.0 Release GitHub
 
+## Hinweis zur Quelle und Lizenz
+Die Daten sind die „Fallzahlen in Deutschland“ des Robert Koch-Institut (RKI) stehen unter der Open Data Datenlizenz Deutschland – Namensnennung – Version 2.0 zur Verfügung.
+Robert Koch-Institut (RKI), dl-de/by-2-0, https://www.govdata.de/dl-de/by-2-0
+https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Fallzahlen.html
