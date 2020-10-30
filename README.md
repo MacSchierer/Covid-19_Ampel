@@ -38,8 +38,8 @@ Auf anderen Geräten kann es ggf. zu Abweichungen in der Darstellung kommen.
 * Darstellungsfehler bei anderen Geräten z. B. iPad
 
 ## Changelog
-v1.1 GPS Funktionalität ergänzt
-v1.0 Release GitHub
+* v1.1 GPS Funktionalität ergänzt
+* v1.0 Release GitHub
 
 ## Hinweis zur Quelle und Lizenz
 Die Daten sind die „Fallzahlen in Deutschland“ des Robert Koch-Institut (RKI) stehen unter der Open Data Datenlizenz Deutschland – Namensnennung – Version 2.0 zur Verfügung.
