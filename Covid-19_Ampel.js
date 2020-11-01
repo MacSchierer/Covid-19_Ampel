@@ -74,6 +74,10 @@ if (hasError == false) {
 		ErrorTxt += "Es konnten keine Daten zur Region gefunden werden.\r\rBitte überprüfe den Parameter im Widget."   
 	}
 }
+else {
+	hasError = true
+	ErrorTxt += "Ein unbekannter Fehler ist aufgetreten."   	
+}
 	
 
 // Ausgabe aufgelaufene Fehler oder Widget
