@@ -19,32 +19,44 @@
 // Die benötigte OBJECTID ist der erste Eintrag der Tabelle. 
 // 
 // Wird keine Region vorausgewählt, wird die Region per GPS ermittelt.
+// Für die Inzidenz für gesamt Deutschland kann "de" als Parameter verwendet.
 //
-// Script by MacSchierer, 30.10.2020, v1.1 
+// Script by MacSchierer, 08.11.2020, v1.2 
 // Download der aktuellen Version hier: https://fckaf.de/JHj oder auf GitHub https://github.com/MacSchierer/Covid-19_Ampel
 
 // Optionale Konfiguration
 const debugMode = false    // Debug für Rahmen bei den einzelnen Stacks
-const allwaysDark = false  // true für ständig dunkels Widget Design
 // Stufen für die Grenzwerte - Ampel: Grün < 35 , Step1st Orange, Step2nd Rot, Step3rd Lila
 const Step1st = 35
 const Step2nd = 50
 const Step3rd = 100
 
 // Ab hier nichts ändern
-let APIurl = ""
-let ObjectID = "" 
 let useGPS = false   
 let hasError = false
-let ErrorTxt = ""               
-let param = args.widgetParameter	// Abfrage des Parameters vom Widget
+let ErrorTxt = ""  
+let MainDataURL = ""
+
+const DateToday = new Date(Date.now()).toISOString().substring(0, 10)
+const Date7Days = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10)
+
+let NewCasesURL = (Landkreis) => `https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_COVID19/FeatureServer/0/query?where=Landkreis%20%3D%20%27${Landkreis}%27%20AND%20NeuerFall%20IN(1%2C%20-1)&outFields=*&returnGeometry=false&outSR=4326&f=json&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22AnzahlFall%22%2C%22outStatisticFieldName%22%3A%22NeueFalle%22%7D%5D`
+let NewDeathsURL = (Landkreis) => `https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_COVID19/FeatureServer/0/query?where=Landkreis%20%3D%20%27${Landkreis}%27%20AND%20NeuerTodesfall%20IN(1%2C%20-1)&outFields=*&returnGeometry=false&outSR=4326&f=json&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22AnzahlTodesfall%22%2C%22outStatisticFieldName%22%3A%22NeueTodesFalle%22%7D%5D`        
+let param = args.widgetParameter 	// Abfrage des Parameters vom Widget
 if (param != null && param.length > 0) {
-	ObjectID = param
-	if (isNaN(ObjectID)) {
+	param = param.toLowerCase()
+	if (isNaN(param) && param != "de") {
 		hasError = true
-		ErrorTxt += "Die OBJEKTID muss eine Zahl sein.\r\rBitte überprüfe den Parameter im Widget."    
-	} else {
-		APIurl = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=OBJECTID=" + ObjectID + "&outFields=OBJECTID,GEN,BEZ,EWZ,last_update,cases,deaths,cases7_per_100k&returnGeometry=false&outSR=4326&f=json"	
+		ErrorTxt += "Bitte die OBJEKTID oder DE als Parameter verwenden.\r\rBitte überprüfe den Parameter im Widget." 
+	} 
+	if (param == "de") {
+		MainDataURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/Coronaf%C3%A4lle_in_den_Bundesl%C3%A4ndern/FeatureServer/0/query?where=1%3D1&returnGeometry=false&outStatistics=%5B%7B%27statisticType%27%3A%27sum%27%2C%27onStatisticField%27%3A%27LAN_ew_EWZ%27%2C%27outStatisticFieldName%27%3A%27EWZ%27%7D%2C%7B%27statisticType%27%3A%27sum%27%2C%27onStatisticField%27%3A%27FallZahl%27%2C%27outStatisticFieldName%27%3A%27cases%27%7D%2C%7B%27statisticType%27%3A%27sum%27%2C%27onStatisticField%27%3A%27Death%27%2C%27outStatisticFieldName%27%3A%27deaths%27%7D%2C%7B%27statisticType%27%3A%27avg%27%2C%27onStatisticField%27%3A%27cases7_bl_per_100k%27%2C%27outStatisticFieldName%27%3A%27cases7_per_100k%27%7D%2C%7B%27statisticType%27%3A%27MAX%27%2C%27onStatisticField%27%3A%27Aktualisierung%27%2C%27outStatisticFieldName%27%3A%27last_update%27%7D%5D&outFields=*&outSR=4326&f=json"
+		NewCasesURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_COVID19/FeatureServer/0/query?f=json&where=%20%20NeuerFall%20IN(1%2C%20-1)&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22AnzahlFall%22%2C%22outStatisticFieldName%22%3A%22NeueFalle%22%7D%5D&resultType=standard&cacheHint=true"
+		NewDeathsURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_COVID19/FeatureServer/0/query?f=json&where=NeuerTodesfall%20IN(1%2C%20-1)&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22AnzahlTodesfall%22%2C%22outStatisticFieldName%22%3A%22NeueTodesFalle%22%7D%5D&resultType=standard&cacheHint=true"
+		Cases7DaysURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_COVID19/FeatureServer/0/query?where=Meldedatum%20%3E%3D%20TIMESTAMP%20%27"+ Date7Days + "%2000%3A00%3A00%27%20AND%20Meldedatum%20%3C%3D%20TIMESTAMP%20%27" + DateToday + "%2000%3A00%3A00%27&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22AnzahlFall%22%2C%22outStatisticFieldName%22%3A%22DE_Falle7Tage%22%7D%5D&outFields=*&returnGeometry=false&outSR=4326&f=json"	
+	}
+    else {
+		MainDataURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=OBJECTID=" + param + "&outFields=OBJECTID,GEN,BEZ,EWZ,county,last_update,cases,deaths,cases7_per_100k&returnGeometry=false&outSR=4326&f=json"	
 	}
 }
 else {
@@ -53,7 +65,7 @@ else {
 	location = await Location.current()
 	let GPSlon = location.longitude.toFixed(3)
 	let GPSlat = location.latitude.toFixed(3)
-    APIurl = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=OBJECTID,GEN,BEZ,EWZ,last_update,cases,deaths,cases7_per_100k&geometry=" + GPSlon + "%2C" + GPSlat + "&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelWithin&returnGeometry=false&outSR=4326&f=json"
+    MainDataURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=OBJECTID,GEN,BEZ,EWZ,county,last_update,cases,deaths,cases7_per_100k&geometry=" + GPSlon + "%2C" + GPSlat + "&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelWithin&returnGeometry=false&outSR=4326&f=json"
 	useGPS = true    
 }
 
@@ -65,14 +77,25 @@ let padding = ((deviceScreen.width - 240) /5) // Default immer kleines Widget
 let widgetSize = new Size(padding + 110, padding + 110)
 
 // Daten als JSON bei https://npgeo-corona-npgeo-de.hub.arcgis.com abfragen
-let allItems = ""
+let MainItems = ""
+let NewCasesItems = ""
+let NewDeathItems = ""
 if (hasError == false) {
-	allItems = await loadItems()	
-	if(!allItems || !allItems.features || !allItems.features.length) {
-		logError(allItems)
+	MainItems = await loadItems(MainDataURL)	
+	if(!MainItems || !MainItems.features || !MainItems.features.length) {
 		hasError = true
 		ErrorTxt += "Es konnten keine Daten zur Region gefunden werden.\r\rBitte überprüfe den Parameter im Widget."   
 	}
+	if (param == "de") { 
+		NewCasesItems = await loadItems(NewCasesURL)	
+		NewDeathsItems = await loadItems(NewDeathsURL)	
+		Cases7DaysItems = await loadItems(Cases7DaysURL)	
+	}
+	else {
+			NewCasesItems = await loadItems(NewCasesURL(SonderToURL(MainItems.features[0].attributes.county)))	
+			NewDeathsItems = await loadItems(NewDeathsURL(SonderToURL(MainItems.features[0].attributes.county)))
+	}
+	
 }
 else {
 	hasError = true
@@ -88,7 +111,7 @@ if (hasError == true) {
 	Script.complete()	
 } else { 
 	if (config.runsInWidget || true) {
-		let widget = createWidget(allItems,widgetSize)
+		let widget = createWidget(MainItems,widgetSize)
 		Script.setWidget(widget)
 		widget.presentSmall()
 		Script.complete()
@@ -99,109 +122,111 @@ if (hasError == true) {
 }	
 
  
-function createWidget(allItems, widgetSize) {
+function createWidget(MainItems, widgetSize) {
 	//
 	// Daten zuordnen und egalisieren 
-	//
-	let Region = allItems.features[0].attributes.GEN
-	let RegTyp = allItems.features[0].attributes.BEZ
-	let LastUpdate = allItems.features[0].attributes.last_update
-		LastUpdate = LastUpdate.substr(0, LastUpdate.indexOf(","))
-	let Citizen = allItems.features[0].attributes.EWZ
+	//	
+	let RegTyp = "Bundesrepublik"	
+	let Region = "Deutschland"
+	let LastUpdate = MainItems.features[0].attributes.last_update
+
+	let NewCases = NewCasesItems.features[0].attributes.NeueFalle
+		if (NewCases == null) {
+			NewCases = "0"
+		}
+		else {
+			NewCases = "+" + NewCases.toLocaleString('de-DE')	
+		}		
+	let NewDeaths = NewDeathsItems.features[0].attributes.NeueTodesFalle
+		if (NewDeaths == null) {
+			NewDeaths = "0"
+		}
+		else {
+			NewDeaths = "+" + NewDeaths.toLocaleString('de-DE')	
+		}
+
+	if (param != "de") {
+		Region = MainItems.features[0].attributes.GEN
+		RegTyp = MainItems.features[0].attributes.BEZ
+	}	
+	if (param == "de") {
+		LastUpdate = new Date(LastUpdate)
+		LastUpdate = LastUpdate.toLocaleDateString('de-DE', {day: '2-digit',  month: '2-digit', year: 'numeric',  hour: '2-digit',  minute: '2-digit' }) + " Uhr" 
+	}
+	let Citizen = MainItems.features[0].attributes.EWZ
 		Citizen = Citizen.toLocaleString('de-DE')
-	let Cases = allItems.features[0].attributes.cases
-	let Cases7Per100k = allItems.features[0].attributes.cases7_per_100k
-		Cases7Per100k = Cases7Per100k.toFixed(2);
-	let Deaths = allItems.features[0].attributes.deaths
+	let Cases = MainItems.features[0].attributes.cases.toLocaleString('de-DE')
+	// bei DE ist die 7-Tages-Inzidenz der berechnete Durchschnitt der Bundesländer und weicht von der offiziellen RKI-Zahl ab
+	let Cases7Per100k = MainItems.features[0].attributes.cases7_per_100k	
+	// daher wird für DE die 7-Tages-Inzidenz gemäß des RKI berechnet
+	if (param == "de") {
+		Cases7Per100k = (100000 / MainItems.features[0].attributes.EWZ * Cases7DaysItems.features[0].attributes.DE_Falle7Tage) 
+		console.log(Cases7Per100k)
+	}
 	
+		Cases7Per100k = Cases7Per100k.toFixed(2);
+	
+	let Deaths = MainItems.features[0].attributes.deaths.toLocaleString('de-DE')
+
 	//
 	// Textbausteine
 	//
 	let SubTitleTxt = RegTyp
 	let TitleTxt = Region
 	// Content Left   
-	let DetailLeftTxt = "Einwohner:\r"
-		DetailLeftTxt += "Fälle gesamt:\r"
-		DetailLeftTxt += "Verstorben:"
+	let	DetailCasesTxt = new Array ("Fälle:", Cases, NewCases)
 	//  Content Right
-	let DetailRightTxt = Citizen + "\r"
-		DetailRightTxt += Cases + "\r"
-		DetailRightTxt += Deaths
-	
+	let DetailDeathsTxt = new Array ("Tote:", Deaths, NewDeaths)
 	let	InzidenzTitelTxt = "7-Tage-Inzidenz"
 	let InzidenzNumberTxt = Cases7Per100k
-	
 	let FooterTxt = LastUpdate
 	
-	// 
-	// Farben setzen, Hintergrund und Schrift
-	// 
+	//Hintergrund
 	let myGradient = new LinearGradient()
 		myGradient.locations = [0.0,1]
-	let MainTextColor = new Color("#ffffff")
-	let SubTitelColor = new Color("#cccccc")
-	let TitelColor = MainTextColor
-	let InzidenzTitelColor = new Color("#e5e5e5")
-	let warnColor = MainTextColor
-	let ContentBGColor = new Color("#00000025")
-	let FooterColor = MainTextColor
-	
-	if (allwaysDark == true || Device.isUsingDarkAppearance()) {
-	// console.log("Dark Mode")
-		myGradient.colors = [new Color("#000000"), new Color("#222222")]
-		TitelColor = new Color("#dddddd")
-		MainTextColor = new Color("#aaaaaa")
-		InzidenzTitelColor = new Color("#dddddd")
-		ContentBGColor = new Color("#ffffff15")
-		FooterColor = new Color("#ffffff")
-		  if (Cases7Per100k <= Step1st) {
-			// Ampel grün
-			warnColor = new Color("#33cc33")
-		} 
-		if (Cases7Per100k > Step1st && Cases7Per100k <= Step2nd ) {
-			// Ampel orange
-			warnColor = new Color("#ff7700")
-		}
-		if (Cases7Per100k > Step2nd) {
-			// Ampel rot
-			warnColor = new Color("#ff0000")
-		}  
-		if (Cases7Per100k > Step3rd) {
-			// Ampel lila
-			warnColor = new Color("#9400D3")
-		}  			
-	} else {
-	// console.log("Light Mode")
-		if (Cases7Per100k <= Step1st) {
-			// Ampel grün
-			myGradient.colors = [new Color("#007711"), new Color("#33cc33")]
-		} 
-		if (Cases7Per100k > Step1st && Cases7Per100k <= Step2nd ) {
-			// Ampel orange
-			myGradient.colors = [new Color("#ff6000"), new Color("#ffb200")]
-		}
-		if (Cases7Per100k > Step2nd) {
-			// Ampel rot
-			myGradient.colors = [new Color("#990000"), new Color("#ff0000")]
-		 }  	
-		if (Cases7Per100k > Step3rd) {
-			// Ampel lila
-			myGradient.colors = [new Color("#851684"), new Color("#9400D3")]
-		 }  		 
-		MainTextColor = new Color("#ffffff")
-		warnColor = MainTextColor
+		myGradient.colors = [Color.dynamic(new Color("#ffffff"), new Color("#000000")), Color.dynamic(new Color("#f0f0f0"), new Color("#222222"))] 
+	let ContentBGColor = Color.dynamic(new Color("#00000015"), new Color("#ffffff15"))	
+	// Schriftfarben
+	let MainTextColor = Color.dynamic(new Color("#000000"), new Color("#aaaaaa"))
+	let SubTitelColor = Color.dynamic(new Color("#666666"), new Color("#cccccc"))
+	let TitelColor = Color.dynamic(MainTextColor, new Color("#dddddd"))
+	let InzidenzTitelColor = Color.dynamic(new Color("#555555"), new Color("#dddddd"))	
+	let FooterColor = Color.dynamic(MainTextColor, new Color("#ffffff"))
+	// Schriftfarben für die Warnstufen
+	let warnColor = new Color("#ffffff")
+	if (Cases7Per100k <= Step1st) {
+		// Ampel grün
+		warnColor =  Color.dynamic(new Color("#33cc33"), new Color("#33cc33"))
+	} 
+	if (Cases7Per100k > Step1st && Cases7Per100k <= Step2nd ) {
+		// Ampel orange
+		warnColor =  Color.dynamic(new Color("#ff7700"), new Color("#ff7700"))
+	}
+	if (Cases7Per100k > Step2nd) {
+		// Ampel rot
+		warnColor = Color.dynamic(new Color("#ff0000"), new Color("#ff0000"))
 	}  
-  
-  
-	 //
-	// Widget bauen
+	if (Cases7Per100k > Step3rd) {
+		// Ampel lila
+		warnColor = Color.dynamic(new Color("#9400D3"), new Color("#9400D3"))
+	}  			
+
+
+    
+	
+	//
+	// Widget 
 	//
 	let w = new ListWidget()
 	w.backgroundGradient = myGradient
-	w.url = "https://npgeo-corona-npgeo-de.hub.arcgis.com"
-	  
-	// Widget Layout
+	if (param == "de") {
+		w.url = "https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Fallzahlen.html"
+	} 
+	else {
+		w.url = "https://experience.arcgis.com/experience/478220a4c454480e823b17327b2bf1d4"
+	} 
 	
+	// Widget Layout und Inhalt
 	// SubTitle Stack
 	let wSubTitle = w.addStack()
 	wSubTitle.size = new Size(widgetSize.width,widgetSize.height*0.10)
@@ -237,71 +262,89 @@ function createWidget(allItems, widgetSize) {
 	wContent.backgroundColor = ContentBGColor
 	wContent.cornerRadius = 4
 	wContent.layoutVertically()
-
-		let wDetail = wContent.addStack()
-		wDetail.size = new Size(widgetSize.width,widgetSize.height*0.35)
-		wDetail.layoutHorizontally()
-			// ContentLeft Stack
-			let wDetailLeft = wDetail.addStack()
-			wDetailLeft.size = new Size(widgetSize.width*0.6,widgetSize.height*0.35)
-			wDetailLeft.centerAlignContent()
-				// Content Left
-				let DetailLeftOut = wDetailLeft.addText(DetailLeftTxt)
-				DetailLeftOut.textColor = MainTextColor
-				DetailLeftOut.rightAlignText()
-				DetailLeftOut.font = Font.systemFont(11)
-				DetailLeftOut.minimumScaleFactor = 0.5  
-			//ContentRight Stack
-			let wDetailRight = wDetail.addStack()
-			wDetailRight.size = new Size(widgetSize.width*0.4,widgetSize.height*0.35)
-			wDetailRight.centerAlignContent()
-				// Content Right
-				let DetailRightOut = wDetailRight.addText(DetailRightTxt)
-				DetailRightOut.textColor = MainTextColor
-				DetailRightOut.rightAlignText()
-				DetailRightOut.font = Font.systemFont(11)
-				DetailRightOut.minimumScaleFactor = 0.5	
-		
+		// Fallzahlen Cases Stack
+		let wFallZahlenCases = wContent.addStack()
+		wFallZahlenCases.size = new Size(widgetSize.width,widgetSize.height*0.15)
+		wFallZahlenCases.centerAlignContent()
+		wFallZahlenCases.setPadding(4,6,0,6)
+			let fzCasesTitelOut = wFallZahlenCases.addText(DetailCasesTxt[0])
+			fzCasesTitelOut.textColor = InzidenzTitelColor
+			fzCasesTitelOut.font = Font.boldSystemFont(12)
+			fzCasesTitelOut.minimumScaleFactor = 0.5   
+		wFallZahlenCases.addSpacer(4)	
+			let fzCasesGesamtOut = wFallZahlenCases.addText(DetailCasesTxt[1])
+			fzCasesGesamtOut.textColor = MainTextColor
+			fzCasesGesamtOut.font = Font.boldSystemFont(12)
+			fzCasesGesamtOut.minimumScaleFactor = 0.5  
+		wFallZahlenCases.addSpacer(4)	
+			let fzCasesNeuOut = wFallZahlenCases.addText("(" + DetailCasesTxt[2] + ")")
+			fzCasesNeuOut.textColor = MainTextColor
+			fzCasesNeuOut.font = Font.systemFont(8)
+			fzCasesNeuOut.minimumScaleFactor = 0.5   		
+		// Fallzahlen Deaths Stack
+		let wFallZahlenDeaths = wContent.addStack()
+		wFallZahlenDeaths.size = new Size(widgetSize.width,widgetSize.height*0.15)
+		wFallZahlenDeaths.centerAlignContent()
+		wFallZahlenDeaths.setPadding(0,6,0,6)
+			let fzDeathsTitelOut = wFallZahlenDeaths.addText(DetailDeathsTxt[0])
+			fzDeathsTitelOut.textColor = InzidenzTitelColor
+			fzDeathsTitelOut.font = Font.boldSystemFont(12)
+			fzDeathsTitelOut.minimumScaleFactor = 0.5   	
+		wFallZahlenDeaths.addSpacer(4)	
+			let fzDeathGesamtOut = wFallZahlenDeaths.addText(DetailDeathsTxt[1])
+			fzDeathGesamtOut.textColor = MainTextColor
+			fzDeathGesamtOut.font = Font.boldSystemFont(12)
+			fzDeathGesamtOut.minimumScaleFactor = 0.5   					
+		wFallZahlenDeaths.addSpacer(4)	
+			let fzDeathsNeuOut = wFallZahlenDeaths.addText("(" + DetailDeathsTxt[2] + ")")
+			fzDeathsNeuOut.textColor = MainTextColor
+			fzDeathsNeuOut.font = Font.systemFont(8)
+			fzDeathsNeuOut.minimumScaleFactor = 0.5   					
 		// Inzidenz Titel Stack
 		let wInzidenzTitel = wContent.addStack()
-		wInzidenzTitel.size = new Size(widgetSize.width,widgetSize.height*0.10)
+		wInzidenzTitel.size = new Size(widgetSize.width,widgetSize.height*0.15)
 		wInzidenzTitel.bottomAlignContent()
+		wInzidenzTitel.addSpacer()	
 			let InzidenzTitelOut = wInzidenzTitel.addText(InzidenzTitelTxt)
 			InzidenzTitelOut.textColor = InzidenzTitelColor
-			InzidenzTitelOut.centerAlignText()
 			InzidenzTitelOut.font = Font.boldSystemFont(14)
-			InzidenzTitelOut.minimumScaleFactor = 0.5    
+			InzidenzTitelOut.minimumScaleFactor = 0.5 
+		wInzidenzTitel.addSpacer()		   
 		// Inzidenz Number Stack
 		let wInzidenzNumber = wContent.addStack()
 		wInzidenzNumber.size = new Size(widgetSize.width,widgetSize.height*0.20)
 		wInzidenzNumber.topAlignContent() 
+		wInzidenzNumber.addSpacer()	
 			let InzidenzNumberOut = wInzidenzNumber.addText(InzidenzNumberTxt.replace(".",","))
 			InzidenzNumberOut.textColor = warnColor
-			InzidenzNumberOut.centerAlignText()
 			InzidenzNumberOut.font = Font.boldSystemFont(24)
 			InzidenzNumberOut.minimumScaleFactor = 0.5  
+		wInzidenzNumber.addSpacer()		
 	 
 	// FooterStack
 	let wFooter = w.addStack()
 	wFooter.size = new Size(widgetSize.width,widgetSize.height*0.10)
 	wFooter.addSpacer()
-	wFooter.setPadding(0,0,0,4)	
 		wFooter.bottomAlignContent()  
 		let FooterOut = wFooter.addText("Quelle RKI: " + FooterTxt)
 		FooterOut.textColor = FooterColor
 		FooterOut.font = Font.systemFont(8)
 		FooterOut.minimumScaleFactor = 0.5  
+	wFooter.addSpacer()
+	
 
 	// Rahmen um Stack anzeigen, DebugMode
 	if (debugMode){
-		wTitle.borderWidth = 1
-		wSubTitle.borderWidth = 1
-		wDetail.borderWidth = 0
-		 wDetailLeft.borderWidth = 1
-		 wDetailRight.borderWidth = 1
+		wTitle.borderWidth = 0
+		wSubTitle.borderWidth = 0
+		
+		wFallZahlenTitel.borderWidth = 1
+		wFallZahlenGesamt.borderWidth = 1
+		wFallZahlenNeu.borderWidth = 1
+		
 		wInzidenzTitel.borderWidth = 1
 		wInzidenzNumber.borderWidth = 1
-		wFooter.borderWidth = 1
+		wFooter.borderWidth = 0
 	} 
 
   return w
@@ -338,7 +381,7 @@ function errorWidget(reason){
 //
 // JSON holen
 //
-async function loadItems() {
+async function loadItems(APIurl) {
 	let req = new Request(APIurl)
 	let json = await req.loadJSON()
 	return json
@@ -360,4 +403,17 @@ function addSymbol({
   wImg.imageSize = new Size(size, size)
   wImg.containerRelativeShape = false
   wImg.imageOpacity = imageOpacity
+}
+
+//
+// Umlaute und Co. für URL 
+//
+function SonderToURL(value){
+  value = value.toLowerCase();
+  value = value.replace(/ä/g, '%C3%A4')
+  value = value.replace(/ö/g, '%C3%B6')
+  value = value.replace(/ü/g, '%C3%BC')
+  value = value.replace(/ß/g, '%C3%9F')
+  value = value.replace(/ /g, '%20')
+  return value;
 }
