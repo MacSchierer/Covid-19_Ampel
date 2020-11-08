@@ -1,9 +1,9 @@
 # Covid-19_Ampel, Ein Scriptable Widget
 Ein Scriptable Widget zum Anzeigen der 7-Tage-Inzidenz und zusätzlichen Infos zu einen ausgwählten Region Deutschlands.
 
-<img src="pic-1.jpg" width="400" /> &nbsp; <img src="pic-2.jpg" width="400" /><br/><br/>
+<img src="light.gif" width="320" /> &nbsp; <img src="dark.gif" width="320" /><br/><br/>
 Auswahl der Region über die Eingabe des entsprechenden Wertes im Parameter des Widgets. Wenn keine Eingabe erfolgt, wird alternativ die Region per GPS ermittelt.<br/>
-<img src="pic-3.jpg" width="400" /> &nbsp; <img src="pic-4.jpg" width="400" />
+<img src="stack.gif" width="320" /> &nbsp; <img src="de.gif" width="320" />
 
 ## Verwendung
 
@@ -13,9 +13,12 @@ Auswahl der Region über die Eingabe des entsprechenden Wertes im Parameter des 
 * Als Widget-Parameter kann die OBJECTID der Region verwendet
 * Wird kein Widget-Parameter verwendet, wird die Region per GPS ermittelt
 
-Die Region kann gemäß JSON-Eintrag -> RKI NPGEO Corona -> Corona Landkreise -> Key = OBJECTID als Parameter des Widget ausgewählt werden.
+Die Region kann gemäß JSON-Eintrag -> RKI NPGEO Corona -> Corona Landkreise -> Key = OBJECTID als <strong>Parameter</strong> des Widget ausgewählt werden.
 Hier findest du die Landkarte mit den Regionen: https://npgeo-corona-npgeo-de.hub.arcgis.com/datasets/917fc37a709542548cc3be077a786c17_0
-Mit einem Klick in die Karte öffnet sich eine Tabelle mit den zugehörigen Infos. Die benötigte OBJECTID ist der erste Eintrag der Tabelle. 
+Mit einem Klick in die Karte öffnet sich eine Tabelle mit den zugehörigen Infos. Die benötigte <strong>OBJECTID</strong> ist der erste Eintrag der Tabelle. 
+
+Wird <strong>keine</strong> Region vorausgewählt, wird die Region per <strong>GPS</strong> ermittelt.
+Für die Inzidenz für gesamt Deutschland kann <strong>de</strong> als Parameter verwendet.
 
 Das Skript ist für kleine Widgets ausgelegt und wurde auf einem iPhone Xs und SE getestet.
 Auf anderen Geräten kann es ggf. zu Abweichungen in der Darstellung kommen.
@@ -24,20 +27,21 @@ Auf anderen Geräten kann es ggf. zu Abweichungen in der Darstellung kommen.
 ## Features
 
 * Quelle der Daten: https://npgeo-corona-npgeo-de.hub.arcgis.com
-* Zeigt neben der 7-Tage-Inzidenz auch Einwohnerzahl, Anzahl der bisherigen Fälle und der Verstorbenen
+* Zeigt die 7-Tage-Inzidenz und Anzahl der bisherigen Fälle und der Verstorbenen
+* Die Werte in Klammern zeige die Differenz zum Vortag
 * Wechselt gemäß der Geräteeinstellung automatisch in den Darkmode
-* Immer Darkmode verwenden: const allwaysDark = true 
 * Warnstufen: <35 Grün, >35 Orange, >50 Rot, >100 Lila 
 * Freie Wahl der Region durch Eingabe des Parameters im Widget
 * Wird kein Widget-Parameter verwendet, wird die Region per GPS ermittelt
+* Zum Anzeigen der Zahlen für Deutschland "de" als Widgetparameter eintragen
 
 
 ## Bekannte Probleme
 
-* Beim Umschalten des Darkmode kann es zu Verzögerunen kommen.
 * Darstellungsfehler bei anderen Geräten z. B. iPad
 
 ## Changelog
+* v1.2 Anzeige der Falldifferenz zum Vortag, Widgetfarben angepasst, Verwenden von "dynamic Color" für das Schalten vom Erscheinungsbild (light/dark)
 * v1.1 GPS Funktionalität ergänzt
 * v1.0 Release GitHub
 
