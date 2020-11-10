@@ -1,8 +1,8 @@
 # Covid-19_Ampel, Ein Scriptable Widget
 Ein Scriptable Widget zum Anzeigen der 7-Tage-Inzidenz und zusätzlichen Infos zu einen ausgwählten Region Deutschlands.<br/>
-<img src="light.gif" width="320" /> &nbsp; <img src="dark.gif" width="320" /><br/><br/>
-Auswahl der Region über die Eingabe des entsprechenden Wertes im Parameter des Widgets. Wenn keine Eingabe erfolgt, wird alternativ die Region per GPS ermittelt.<br/>
-<img src="stack.gif" width="320" />  &nbsp; <img src="de.gif" width="320" />
+Auswahl der Region über die Eingabe des entsprechenden Wertes im Parameter des Widgets. Wenn keine Eingabe erfolgt, wird alternativ die Region per GPS ermittelt.
+
+<img src="theme_bsp-1.jpg" width="300" /> &nbsp; <img src="theme_bsp-1.jpg" width="300" />&nbsp; <img src="theme_bsp-3.jpg" width="300" />
 
 ## Verwendung
 
@@ -33,14 +33,21 @@ Auf anderen Geräten kann es ggf. zu Abweichungen in der Darstellung kommen.
 * Freie Wahl der Region durch Eingabe des Parameters im Widget
 * Wird kein Widget-Parameter verwendet, wird die Region per GPS ermittelt
 * Zum Anzeigen der Zahlen für Deutschland "de" als Widgetparameter eintragen
+* Auswahl des Farbthemes über die Variable "WidgetTheme": "default" enspricht "Hell & Dunkel", "color" entspricht "Farbiger Hintergrund & Dunkel"
 
+## Beispiele
+Widgetstapel, helles Design | Region via GPS, dunkles Design<br/>
+<img src="light.gif" width="320" /> &nbsp; <img src="dark.gif" width="320" /><br/><br/>
+Widgets stapeln | Widgetparameter "de"<br/>
+<img src="stack.gif" width="320" />  &nbsp; <img src="de.gif" width="320" />
 
 ## Bekannte Probleme
 
 * Darstellungsfehler bei anderen Geräten z. B. iPad
 
 ## Changelog
-* v1.2 Anzeige der Falldifferenz zum Vortag, Widgetfarben angepasst, Verwenden von "dynamic Color" für das Schalten vom Erscheinungsbild (light/dark)
+* v1.3 Möglichkeit der Auswahl eines "Themes", kleine Korrektur an der Titelzeile
+* v1.2 Anzeige der Falldifferenz zum Vortag, Widgetfarben angepasst, Verwenden von "dynamic Color" für das Schalten vom Erscheinungsbild (light/dark) gemäß der iPhone Einstellung
 * v1.1 GPS Funktionalität ergänzt
 * v1.0 Release GitHub
 
@@ -48,3 +55,5 @@ Auf anderen Geräten kann es ggf. zu Abweichungen in der Darstellung kommen.
 Die Daten sind die „Fallzahlen in Deutschland“ des Robert Koch-Institut (RKI) stehen unter der Open Data Datenlizenz Deutschland – Namensnennung – Version 2.0 zur Verfügung.
 Robert Koch-Institut (RKI), dl-de/by-2-0, https://www.govdata.de/dl-de/by-2-0
 https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Fallzahlen.html
+
+
