@@ -21,16 +21,22 @@
 // Wird keine Region vorausgewählt, wird die Region per GPS ermittelt.
 // Für die Inzidenz für gesamt Deutschland kann "de" als Parameter verwendet.
 //
-// Script by MacSchierer, 08.11.2020, v1.2 
+// Script by MacSchierer, 10.11.2020, v1.3 
 // Download der aktuellen Version hier: https://fckaf.de/JHj oder auf GitHub https://github.com/MacSchierer/Covid-19_Ampel
 
 // Optionale Konfiguration
-const debugMode = false    // Debug für Rahmen bei den einzelnen Stacks
+//
+// Widget Theme: default = Hell & Dunkel, color = Farbig & Dunkel
+const WidgetTheme = "color"    // Optionen: "default", "color"
+//
 // Stufen für die Grenzwerte - Ampel: Grün < 35 , Step1st Orange, Step2nd Rot, Step3rd Lila
 const Step1st = 35
 const Step2nd = 50
 const Step3rd = 100
 
+// Debug für Rahmen bei den einzelnen Stacks
+const debugMode = false    
+//
 // Ab hier nichts ändern
 let useGPS = false   
 let hasError = false
@@ -61,12 +67,17 @@ if (param != null && param.length > 0) {
 }
 else {
 // Keine Region vorgewählt -> GPS benutzen
-	Location.setAccuracyToThreeKilometers()
-	location = await Location.current()
-	let GPSlon = location.longitude.toFixed(3)
-	let GPSlat = location.latitude.toFixed(3)
-    MainDataURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=OBJECTID,GEN,BEZ,EWZ,county,last_update,cases,deaths,cases7_per_100k&geometry=" + GPSlon + "%2C" + GPSlat + "&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelWithin&returnGeometry=false&outSR=4326&f=json"
-	useGPS = true    
+	try {
+		Location.setAccuracyToThreeKilometers()
+		location = await Location.current()
+		let GPSlon = location.longitude.toFixed(3)
+		let GPSlat = location.latitude.toFixed(3)
+	    MainDataURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=OBJECTID,GEN,BEZ,EWZ,county,last_update,cases,deaths,cases7_per_100k&geometry=" + GPSlon + "%2C" + GPSlat + "&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelWithin&returnGeometry=false&outSR=4326&f=json"
+		useGPS = true    
+	} catch (e) {
+		hasError = true
+		ErrorTxt += "Das Widget ist nicht berechtigt deinen Standort zu verwenden. Dies kann in den Systemeinstellungen geändert werden." 
+	}		
 }
 
 //
@@ -99,7 +110,7 @@ if (hasError == false) {
 }
 else {
 	hasError = true
-	ErrorTxt += "Ein unbekannter Fehler ist aufgetreten."   	
+	ErrorTxt += "\r\rDaten konnten nicht abgerufen werden."   	
 }
 	
 
@@ -181,44 +192,66 @@ function createWidget(MainItems, widgetSize) {
 	let InzidenzNumberTxt = Cases7Per100k
 	let FooterTxt = LastUpdate
 	
-	//Hintergrund
-	let myGradient = new LinearGradient()
-		myGradient.locations = [0.0,1]
-		myGradient.colors = [Color.dynamic(new Color("#ffffff"), new Color("#000000")), Color.dynamic(new Color("#f0f0f0"), new Color("#222222"))] 
-	let ContentBGColor = Color.dynamic(new Color("#00000015"), new Color("#ffffff15"))	
-	// Schriftfarben
-	let MainTextColor = Color.dynamic(new Color("#000000"), new Color("#aaaaaa"))
-	let SubTitelColor = Color.dynamic(new Color("#666666"), new Color("#cccccc"))
-	let TitelColor = Color.dynamic(MainTextColor, new Color("#dddddd"))
-	let InzidenzTitelColor = Color.dynamic(new Color("#555555"), new Color("#dddddd"))	
-	let FooterColor = Color.dynamic(MainTextColor, new Color("#ffffff"))
-	// Schriftfarben für die Warnstufen
-	let warnColor = new Color("#ffffff")
-	if (Cases7Per100k <= Step1st) {
-		// Ampel grün
-		warnColor =  Color.dynamic(new Color("#33cc33"), new Color("#33cc33"))
+	
+	// Warstufen und zugehörige Farben
+	let warnColor = new Array 
+	if (Cases7Per100k <= Step1st) {	
+		// Ampel grün: hell, dunkel, weiß
+		warnColor = [new Color("#33cc33"), new Color("#007711"), new Color("#ffffff")]
 	} 
 	if (Cases7Per100k > Step1st && Cases7Per100k <= Step2nd ) {
-		// Ampel orange
-		warnColor =  Color.dynamic(new Color("#ff7700"), new Color("#ff7700"))
-	}
+		// Ampel orange: hell, dunkel, weiß
+		warnColor = [new Color("#ff7700"), new Color("#ff6000"), new Color("#ffffff")]
+	}	
 	if (Cases7Per100k > Step2nd) {
-		// Ampel rot
-		warnColor = Color.dynamic(new Color("#ff0000"), new Color("#ff0000"))
-	}  
+		// Ampel rot: hell, dunkel, weiß
+		warnColor = [new Color("#ff0000"), new Color("#990000"), new Color("#ffffff")]	
+	}	
 	if (Cases7Per100k > Step3rd) {
-		// Ampel lila
-		warnColor = Color.dynamic(new Color("#9400D3"), new Color("#9400D3"))
-	}  			
-
-
-    
+		// Ampel lila: hell, dunkel, weiß
+		warnColor = [new Color("#9400D3"), new Color("#851684"), new Color("#ffffff")]	
+	}
 	
+	// Theme definieren
+	let myGradient = new LinearGradient()
+		myGradient.locations = [0.0,1]
+	
+	switch(WidgetTheme) {
+	// Color Theme: Farbig & Dunkel
+		case "color" :			
+			// Hintergründe
+			ContentBGColor = Color.dynamic(new Color("#00000025"), new Color("#ffffff15"))	
+			myGradient.colors = [Color.dynamic(warnColor[1], new Color("#000000")), Color.dynamic(warnColor[0], new Color("#222222"))]
+			// Schriftfarben
+			MainTextColor = Color.dynamic(new Color("#ffffff"), new Color("#aaaaaa"))
+			SubTitelColor = Color.dynamic(new Color("#cccccc"), new Color("#cccccc"))
+			TitelColor = MainTextColor
+			InzidenzTitelColor = Color.dynamic(new Color("#e5e5e5"), new Color("#dddddd"))	
+			InzidenzColor = Color.dynamic(warnColor[2], warnColor[2])
+			FooterColor = MainTextColor			
+		break
+	// Default Theme: Hell & Dunkel
+		case "default" :	
+		default: 				
+			// Hintergründe
+			myGradient.colors = [Color.dynamic(new Color("#ffffff"), new Color("#000000")), Color.dynamic(new Color("#f0f0f0"), new Color("#222222"))] 
+			ContentBGColor = Color.dynamic(new Color("#00000015"), new Color("#ffffff15"))	
+			// Schriftfarben
+			MainTextColor = Color.dynamic(new Color("#000000"), new Color("#aaaaaa"))
+			SubTitelColor = Color.dynamic(new Color("#666666"), new Color("#cccccc"))
+			TitelColor = Color.dynamic(MainTextColor, new Color("#dddddd"))
+			InzidenzTitelColor = Color.dynamic(new Color("#555555"), new Color("#dddddd"))	
+			InzidenzColor = Color.dynamic(warnColor[0], warnColor[0])
+			FooterColor = Color.dynamic(MainTextColor, new Color("#ffffff"))		
+	}
+
 	//
 	// Widget 
 	//
 	let w = new ListWidget()
+	w.refreshAfterDate = new Date(Date.now() + 60 * 60 * 1000) // 60 Minuten Refresh-Intervall
 	w.backgroundGradient = myGradient
+
 	if (param == "de") {
 		w.url = "https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Fallzahlen.html"
 	} 
@@ -231,25 +264,26 @@ function createWidget(MainItems, widgetSize) {
 	let wSubTitle = w.addStack()
 	wSubTitle.size = new Size(widgetSize.width,widgetSize.height*0.10)
 	wSubTitle.bottomAlignContent()
-	wSubTitle.setPadding(0,4,0,4)	
+	wSubTitle.addSpacer()  
 		let SubTitleOut = wSubTitle.addText(SubTitleTxt)
 		SubTitleOut.textColor = SubTitelColor
 		SubTitleOut.font = Font.boldSystemFont(10)
 		SubTitleOut.minimumScaleFactor = 0.5	
 	wSubTitle.addSpacer()  
 	if (useGPS == true) {
+		wSubTitle.setPadding(0,16,0,4)	
 		addSymbol({
 			  symbol: 'mappin.and.ellipse',
 			  stack: wSubTitle,
 			  color: SubTitelColor,
-			  size: 12,
+			  size: 10,
 			})	
 	}	
 	// Title Stack
 	let wTitle = w.addStack()
 	wTitle.size = new Size(widgetSize.width,widgetSize.height*0.15)
 	wTitle.centerAlignContent()
-	wTitle.setPadding(0,4,0,0)
+	wTitle.addSpacer()	
 		let TitleOut = wTitle.addText(TitleTxt)
 		TitleOut.textColor = TitelColor
 		TitleOut.font = Font.boldSystemFont(20)
@@ -316,7 +350,7 @@ function createWidget(MainItems, widgetSize) {
 		wInzidenzNumber.topAlignContent() 
 		wInzidenzNumber.addSpacer()	
 			let InzidenzNumberOut = wInzidenzNumber.addText(InzidenzNumberTxt.replace(".",","))
-			InzidenzNumberOut.textColor = warnColor
+			InzidenzNumberOut.textColor = InzidenzColor
 			InzidenzNumberOut.font = Font.boldSystemFont(24)
 			InzidenzNumberOut.minimumScaleFactor = 0.5  
 		wInzidenzNumber.addSpacer()		
@@ -346,7 +380,6 @@ function createWidget(MainItems, widgetSize) {
 		wInzidenzNumber.borderWidth = 1
 		wFooter.borderWidth = 0
 	} 
-
   return w
 }
 
