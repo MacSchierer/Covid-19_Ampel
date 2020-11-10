@@ -2,7 +2,10 @@
 Ein Scriptable Widget zum Anzeigen der 7-Tage-Inzidenz und zusätzlichen Infos zu einen ausgwählten Region Deutschlands.<br/>
 Auswahl der Region über die Eingabe des entsprechenden Wertes im Parameter des Widgets. Wenn keine Eingabe erfolgt, wird alternativ die Region per GPS ermittelt.
 
-<img src="theme_bsp-1.jpg" width="300" /> &nbsp; <img src="theme_bsp-2.jpg" width="300" />&nbsp; <img src="theme_bsp-3.jpg" width="300" />
+<img src="theme_bsp-1.jpg" width="320" /> &nbsp; <img src="theme_bsp-2.jpg" width="320" />&nbsp; <img src="theme_bsp-3.jpg" width="320" />
+* Bild #1: WidgetTheme = "color"
+* Bild #2: WidgetTheme = "default" oder ""
+* Bild #3: Anzeige, wenn iOS Erscheinungsbild auf "dunkel" wechselt
 
 ## Verwendung
 
