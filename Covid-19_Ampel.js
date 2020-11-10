@@ -227,7 +227,7 @@ function createWidget(MainItems, widgetSize) {
 			SubTitelColor = Color.dynamic(new Color("#cccccc"), new Color("#cccccc"))
 			TitelColor = MainTextColor
 			InzidenzTitelColor = Color.dynamic(new Color("#e5e5e5"), new Color("#dddddd"))	
-			InzidenzColor = Color.dynamic(warnColor[2], warnColor[2])
+			InzidenzColor = Color.dynamic(warnColor[2], warnColor[0])
 			FooterColor = MainTextColor			
 		break
 	// Default Theme: Hell & Dunkel
