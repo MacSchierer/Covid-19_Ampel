@@ -201,7 +201,7 @@ function createWidget(MainItems, widgetSize) {
 	} 
 	if (Cases7Per100k > Step1st && Cases7Per100k <= Step2nd ) {
 		// Ampel orange: hell, dunkel, weiß
-		warnColor = [new Color("#ff7700"), new Color("#ff6000"), new Color("#ffffff")]
+		warnColor = [new Color("#ffb200"), new Color("#ff6000"), new Color("#ffffff")]
 	}	
 	if (Cases7Per100k > Step2nd) {
 		// Ampel rot: hell, dunkel, weiß
