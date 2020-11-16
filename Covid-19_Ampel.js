@@ -143,14 +143,14 @@ function createWidget(MainItems, widgetSize) {
 
 	let NewCases = NewCasesItems.features[0].attributes.NeueFalle
 		if (NewCases == null) {
-			NewCases = "0"
+			NewCases = "-"
 		}
 		else {
 			NewCases = "+" + NewCases.toLocaleString('de-DE')	
 		}		
 	let NewDeaths = NewDeathsItems.features[0].attributes.NeueTodesFalle
 		if (NewDeaths == null) {
-			NewDeaths = "0"
+			NewDeaths = "-"
 		}
 		else {
 			NewDeaths = "+" + NewDeaths.toLocaleString('de-DE')	
