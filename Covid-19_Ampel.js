@@ -21,12 +21,12 @@
 // Wird keine Region vorausgewählt, wird die Region per GPS ermittelt.
 // Für die Inzidenz für gesamt Deutschland kann "de" als Parameter verwendet.
 //
-// Script by MacSchierer, 10.11.2020, v1.3 
+// Script by MacSchierer, 29.11.2020, v1.4 
 // Download der aktuellen Version hier: https://fckaf.de/JHj oder auf GitHub https://github.com/MacSchierer/Covid-19_Ampel
 
 // Optionale Konfiguration
 //
-// Widget Theme: default = Hell & Dunkel, color = Farbig & Dunkel
+// Widget Theme: Default = Hell & Dunkel, Color = Farbig & Dunkel
 const WidgetTheme = "color"    // Optionen: "default", "color"
 //
 // Stufen für die Grenzwerte - Ampel: Grün < 35 , Step1st Orange, Step2nd Rot, Step3rd Lila
@@ -76,7 +76,7 @@ else {
 		useGPS = true    
 	} catch (e) {
 		hasError = true
-		ErrorTxt += "Das Widget ist nicht berechtigt deinen Standort zu verwenden. Dies kann in den Systemeinstellungen geändert werden." 
+		ErrorTxt += "Das Widget konnte deinen Standort nicht verwenden." 
 	}		
 }
 
@@ -231,7 +231,6 @@ function createWidget(MainItems, widgetSize) {
 			FooterColor = MainTextColor			
 		break
 	// Default Theme: Hell & Dunkel
-		case "default" :	
 		default: 				
 			// Hintergründe
 			myGradient.colors = [Color.dynamic(new Color("#ffffff"), new Color("#000000")), Color.dynamic(new Color("#f0f0f0"), new Color("#222222"))] 
@@ -349,6 +348,18 @@ function createWidget(MainItems, widgetSize) {
 		wInzidenzNumber.size = new Size(widgetSize.width,widgetSize.height*0.20)
 		wInzidenzNumber.topAlignContent() 
 		wInzidenzNumber.addSpacer()	
+
+	if (Cases7Per100k >= 200) {
+		wSubTitle.setPadding(0,16,0,4)	
+		addSymbol({
+			  symbol: 'exclamationmark.triangle',
+			  stack: wInzidenzNumber,
+			  color: Color.orange(),
+			  size: 24,
+			})	
+         wInzidenzNumber.addSpacer()
+	}
+
 			let InzidenzNumberOut = wInzidenzNumber.addText(InzidenzNumberTxt.replace(".",","))
 			InzidenzNumberOut.textColor = InzidenzColor
 			InzidenzNumberOut.font = Font.boldSystemFont(24)
