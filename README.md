@@ -49,6 +49,7 @@ Widgets stapeln | Widgetparameter "de"<br/>
 * Darstellungsfehler bei anderen Geräten z. B. iPad
 
 ## Changelog
+* v1.4 Ab einer Inzidenz von 200 ("Extrem"-Hotspot) wird zusätzlich ein Warnsymbol angezeigt.
 * v1.3 Möglichkeit der Auswahl eines "Themes", kleine Korrektur an der Titelzeile
 * v1.2 Anzeige der Falldifferenz zum Vortag, Widgetfarben angepasst, Verwenden von "dynamic Color" für das Schalten vom Erscheinungsbild (light/dark) gemäß der iPhone Einstellung
 * v1.1 GPS Funktionalität ergänzt
