@@ -1,6 +1,3 @@
-// Variables used by Scriptable.
-// These must be at the very top of the file. Do not edit.
-// icon-color: red; icon-glyph: star-of-life;
 //
 // Script für https://scriptable.app
 //
@@ -21,13 +18,13 @@
 // Wird keine Region vorausgewählt, wird die Region per GPS ermittelt.
 // Für die Inzidenz für gesamt Deutschland kann "de" als Parameter verwendet.
 //
-// Script by MacSchierer, 29.11.2020, v1.4 
-// Download der aktuellen Version hier: https://fckaf.de/JHj oder auf GitHub https://github.com/MacSchierer/Covid-19_Ampel
+// Script by MacSchierer, 17.02.2022, v1.5 
+// Download der aktuellen Version auf GitHub https://github.com/MacSchierer/Covid-19_Ampel
 
 // Optionale Konfiguration
 //
 // Widget Theme: Default = Hell & Dunkel, Color = Farbig & Dunkel
-const WidgetTheme = "color"    // Optionen: "default", "color"
+const WidgetTheme = "default"    // Optionen: "default", "color"
 //
 // Stufen für die Grenzwerte - Ampel: Grün < 35 , Step1st Orange, Step2nd Rot, Step3rd Lila
 const Step1st = 35
@@ -46,8 +43,8 @@ let MainDataURL = ""
 const DateToday = new Date(Date.now()).toISOString().substring(0, 10)
 const Date7Days = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10)
 
-let NewCasesURL = (Landkreis) => `https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_COVID19/FeatureServer/0/query?where=Landkreis%20%3D%20%27${Landkreis}%27%20AND%20NeuerFall%20IN(1%2C%20-1)&outFields=*&returnGeometry=false&outSR=4326&f=json&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22AnzahlFall%22%2C%22outStatisticFieldName%22%3A%22NeueFalle%22%7D%5D`
-let NewDeathsURL = (Landkreis) => `https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_COVID19/FeatureServer/0/query?where=Landkreis%20%3D%20%27${Landkreis}%27%20AND%20NeuerTodesfall%20IN(1%2C%20-1)&outFields=*&returnGeometry=false&outSR=4326&f=json&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22AnzahlTodesfall%22%2C%22outStatisticFieldName%22%3A%22NeueTodesFalle%22%7D%5D`        
+let NewCasesURL = (Landkreis) => `https://services7.arcgis.com/mOBPykOjAyBO2ZKk/ArcGIS/rest/services/Covid19_hubv/FeatureServer/0/query?where=Landkreis%20%3D%20%27${Landkreis}%27%20AND%20NeuerFall%20IN(1%2C%20-1)&outFields=*&returnGeometry=false&outSR=4326&f=json&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22AnzahlFall%22%2C%22outStatisticFieldName%22%3A%22NeueFalle%22%7D%5D`
+let NewDeathsURL = (Landkreis) => `https://services7.arcgis.com/mOBPykOjAyBO2ZKk/ArcGIS/rest/services/Covid19_hubv/FeatureServer/0/query?where=Landkreis%20%3D%20%27${Landkreis}%27%20AND%20NeuerTodesfall%20IN(1%2C%20-1)&outFields=*&returnGeometry=false&outSR=4326&f=json&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22AnzahlTodesfall%22%2C%22outStatisticFieldName%22%3A%22NeueTodesFalle%22%7D%5D`        
 let param = args.widgetParameter 	// Abfrage des Parameters vom Widget
 if (param != null && param.length > 0) {
 	param = param.toLowerCase()
@@ -57,11 +54,11 @@ if (param != null && param.length > 0) {
 	} 
 	if (param == "de") {
 		MainDataURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/Coronaf%C3%A4lle_in_den_Bundesl%C3%A4ndern/FeatureServer/0/query?where=1%3D1&returnGeometry=false&outStatistics=%5B%7B%27statisticType%27%3A%27sum%27%2C%27onStatisticField%27%3A%27LAN_ew_EWZ%27%2C%27outStatisticFieldName%27%3A%27EWZ%27%7D%2C%7B%27statisticType%27%3A%27sum%27%2C%27onStatisticField%27%3A%27FallZahl%27%2C%27outStatisticFieldName%27%3A%27cases%27%7D%2C%7B%27statisticType%27%3A%27sum%27%2C%27onStatisticField%27%3A%27Death%27%2C%27outStatisticFieldName%27%3A%27deaths%27%7D%2C%7B%27statisticType%27%3A%27avg%27%2C%27onStatisticField%27%3A%27cases7_bl_per_100k%27%2C%27outStatisticFieldName%27%3A%27cases7_per_100k%27%7D%2C%7B%27statisticType%27%3A%27MAX%27%2C%27onStatisticField%27%3A%27Aktualisierung%27%2C%27outStatisticFieldName%27%3A%27last_update%27%7D%5D&outFields=*&outSR=4326&f=json"
-		NewCasesURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_COVID19/FeatureServer/0/query?f=json&where=%20%20NeuerFall%20IN(1%2C%20-1)&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22AnzahlFall%22%2C%22outStatisticFieldName%22%3A%22NeueFalle%22%7D%5D&resultType=standard&cacheHint=true"
-		NewDeathsURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_COVID19/FeatureServer/0/query?f=json&where=NeuerTodesfall%20IN(1%2C%20-1)&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22AnzahlTodesfall%22%2C%22outStatisticFieldName%22%3A%22NeueTodesFalle%22%7D%5D&resultType=standard&cacheHint=true"
-		Cases7DaysURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_COVID19/FeatureServer/0/query?where=Meldedatum%20%3E%3D%20TIMESTAMP%20%27"+ Date7Days + "%2000%3A00%3A00%27%20AND%20Meldedatum%20%3C%3D%20TIMESTAMP%20%27" + DateToday + "%2000%3A00%3A00%27&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22AnzahlFall%22%2C%22outStatisticFieldName%22%3A%22DE_Falle7Tage%22%7D%5D&outFields=*&returnGeometry=false&outSR=4326&f=json"	
+		NewCasesURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/ArcGIS/rest/services/Covid19_hubv/FeatureServer/0/query?f=json&where=%20%20NeuerFall%20IN(1%2C%20-1)&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22AnzahlFall%22%2C%22outStatisticFieldName%22%3A%22NeueFalle%22%7D%5D&resultType=standard&cacheHint=true"
+		NewDeathsURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/ArcGIS/rest/services/Covid19_hubv/FeatureServer/0/query?f=json&where=NeuerTodesfall%20IN(1%2C%20-1)&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22AnzahlTodesfall%22%2C%22outStatisticFieldName%22%3A%22NeueTodesFalle%22%7D%5D&resultType=standard&cacheHint=true"
+		Cases7DaysURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/ArcGIS/rest/services/Covid19_hubv/FeatureServer/0/query?where=Meldedatum%20%3E%3D%20TIMESTAMP%20%27"+ Date7Days + "%2000%3A00%3A00%27%20AND%20Meldedatum%20%3C%3D%20TIMESTAMP%20%27" + DateToday + "%2000%3A00%3A00%27&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22AnzahlFall%22%2C%22outStatisticFieldName%22%3A%22DE_Falle7Tage%22%7D%5D&outFields=*&returnGeometry=false&outSR=4326&f=json"	
 	}
-    else {
+	else {
 		MainDataURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=OBJECTID=" + param + "&outFields=OBJECTID,GEN,BEZ,EWZ,county,last_update,cases,deaths,cases7_per_100k&returnGeometry=false&outSR=4326&f=json"	
 	}
 }
@@ -72,7 +69,7 @@ else {
 		location = await Location.current()
 		let GPSlon = location.longitude.toFixed(3)
 		let GPSlat = location.latitude.toFixed(3)
-	    MainDataURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=OBJECTID,GEN,BEZ,EWZ,county,last_update,cases,deaths,cases7_per_100k&geometry=" + GPSlon + "%2C" + GPSlat + "&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelWithin&returnGeometry=false&outSR=4326&f=json"
+		MainDataURL = "https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=1%3D1&outFields=OBJECTID,GEN,BEZ,EWZ,county,last_update,cases,deaths,cases7_per_100k&geometry=" + GPSlon + "%2C" + GPSlat + "&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelWithin&returnGeometry=false&outSR=4326&f=json"
 		useGPS = true    
 	} catch (e) {
 		hasError = true
@@ -81,7 +78,7 @@ else {
 }
 
 //
-// Geräteinfos für Widgetgröße - getestet bei iPhone XS
+// Geräteinfos für Widgetgröße - getestet bei iPhone XS, 12pro
 // 
 let deviceScreen = Device.screenSize()
 let padding = ((deviceScreen.width - 240) /5) // Default immer kleines Widget
@@ -95,7 +92,7 @@ if (hasError == false) {
 	MainItems = await loadItems(MainDataURL)	
 	if(!MainItems || !MainItems.features || !MainItems.features.length) {
 		hasError = true
-		ErrorTxt += "Es konnten keine Daten zur Region gefunden werden.\r\rBitte überprüfe den Parameter im Widget."   
+		ErrorTxt += "Es konnten keine Daten zur Region abgerufen werden."   
 	}
 	if (param == "de") { 
 		NewCasesItems = await loadItems(NewCasesURL)	
@@ -106,7 +103,6 @@ if (hasError == false) {
 			NewCasesItems = await loadItems(NewCasesURL(SonderToURL(MainItems.features[0].attributes.county)))	
 			NewDeathsItems = await loadItems(NewDeathsURL(SonderToURL(MainItems.features[0].attributes.county)))
 	}
-	
 }
 else {
 	hasError = true
@@ -178,7 +174,7 @@ function createWidget(MainItems, widgetSize) {
 		Cases7Per100k = Cases7Per100k.toFixed(2);
 	
 	let Deaths = MainItems.features[0].attributes.deaths.toLocaleString('de-DE')
-
+	
 	//
 	// Textbausteine
 	//
@@ -188,11 +184,11 @@ function createWidget(MainItems, widgetSize) {
 	let	DetailCasesTxt = new Array ("Fälle:", Cases, NewCases)
 	//  Content Right
 	let DetailDeathsTxt = new Array ("Tote:", Deaths, NewDeaths)
-	let	InzidenzTitelTxt = "7-Tage-Inzidenz"
+	let InzidenzTitelTxt = "7-Tage-Inzidenz"
 	let InzidenzNumberTxt = Cases7Per100k
 	let FooterTxt = LastUpdate
-	
-	
+
+
 	// Warstufen und zugehörige Farben
 	let warnColor = new Array 
 	if (Cases7Per100k <= Step1st) {	
@@ -357,7 +353,7 @@ function createWidget(MainItems, widgetSize) {
 			  color: Color.orange(),
 			  size: 24,
 			})	
-         wInzidenzNumber.addSpacer()
+		 wInzidenzNumber.addSpacer()
 	}
 
 			let InzidenzNumberOut = wInzidenzNumber.addText(InzidenzNumberTxt.replace(".",","))
